@@ -19,6 +19,7 @@ const EnumValueDeclaration = require('./enumvaluedeclaration');
 const RelationshipDeclaration = require('./relationshipdeclaration');
 const IllegalModelException = require('./illegalmodelexception');
 const Globalize = require('../globalize');
+const Introspector = require('./introspector');
 
 /**
  * ClassDeclaration defines the structure (model/schema) of composite data.
@@ -75,7 +76,7 @@ class ClassDeclaration {
     /**
      * Process the AST and build the model
      *
-     * @throws {InvalidModelException}
+     * @throws {IllegalModelException}
      * @private
      */
     process() {
@@ -100,8 +101,6 @@ class ClassDeclaration {
         for(let n=0; n < this.ast.body.declarations.length; n++ ) {
             let thing = this.ast.body.declarations[n];
 
-            //console.log('Found: ' + thing.type + ' ' + thing.id.name);
-
             if(thing.type === 'FieldDeclaration') {
                 this.properties.push( new Field(this, thing) );
             }
@@ -125,10 +124,24 @@ class ClassDeclaration {
      * override this method to impose additional semantic constraints on the
      * contents/relations of fields.
      *
-     * @throws {InvalidModelException}
+     * @throws {IllegalModelException}
      * @private
      */
     validate() {
+
+        const declarations = this.getModelFile().getAllDeclarations();
+        for(let n=0; n < declarations.length; n++) {
+            let declaration = declarations[n];
+
+            // check we don't have an asset with the same name
+            for(let i=n+1; i < declarations.length; i++) {
+                let otherDeclaration = declarations[i];
+                if(declaration.getFullyQualifiedName() === otherDeclaration.getFullyQualifiedName()) {
+                    throw new IllegalModelException(`Duplicate class name ${declaration.getName()}`);
+                }
+            }
+        }
+
         // TODO (LG) check that all imported classes exist, rather than just
         // used imports
 
@@ -341,17 +354,80 @@ class ClassDeclaration {
      * @return {string} the FQN name of the super type or null
      */
     getSuperType() {
-        if(this.superType) {
-            const type = this.getModelFile().getType(this.superType);
-            if(type === null) {
-                throw new Error('Could not find super type:' + this.superType );
-            }
-            else {
-                return type.getFullyQualifiedName();
-            }
+        const superTypeDeclaration = this.getSuperTypeDeclaration();
+        if (superTypeDeclaration) {
+            return superTypeDeclaration.getFullyQualifiedName();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the super type class declaration for this class.
+     * @return {ClassDeclaration} the super type declaration, or null if there is no super type.
+     */
+    getSuperTypeDeclaration() {
+        if (!this.superType) {
+            return null;
         }
 
-        return null;
+        const supertypeDeclaration = this.getModelFile().getType(this.superType);
+        if (!supertypeDeclaration) {
+            throw new Error('Could not find super type: ' + this.superType);
+        }
+
+        return supertypeDeclaration;
+    }
+
+    /**
+     * Get the class declarations for all subclasses of this class, including this class.
+     * @return {ClassDeclaration[]} subclass declarations.
+     */
+    getAssignableClassDeclarations() {
+        const results = new Set();
+        const modelManager = this.getModelFile().getModelManager();
+        const introspector = new Introspector(modelManager);
+        const allClassDeclarations = introspector.getClassDeclarations();
+        const subclassMap = new Map();
+
+        // Build map of all direct subclasses relationships
+        allClassDeclarations.forEach((declaration) => {
+            const superType = declaration.getSuperType();
+            if (superType) {
+                const subclasses = subclassMap.get(superType) || new Set();
+                subclasses.add(declaration);
+                subclassMap.set(superType, subclasses);
+            }
+        });
+
+        // Recursive function to collect all direct and indirect subclasses of a given (set) of base classes.
+        const collectSubclasses = (superclasses) => {
+            superclasses.forEach((declaration) => {
+                results.add(declaration);
+                const superType = declaration.getFullyQualifiedName();
+                const subclasses = subclassMap.get(superType);
+                if (subclasses) {
+                    collectSubclasses(subclasses);
+                }
+            });
+        };
+
+        collectSubclasses([this]);
+
+        return Array.from(results);
+    }
+
+    /**
+     * Get all the super-type declarations for this type.
+     * @return {ClassDeclaration[]} super-type declarations.
+     */
+    getAllSuperTypeDeclarations() {
+        const results = [];
+        for (let type = this; (type = type.getSuperTypeDeclaration()); ) {
+            results.push(type);
+        }
+
+        return results;
     }
 
     /**

@@ -4,7 +4,7 @@
 set -ev
 set -o pipefail
 
-# Grab the Concerto directory.
+# Grab the parent (root) directory.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 date
 ME=`basename "$0"`
@@ -51,18 +51,21 @@ npm config set registry https://registry.npmjs.org/
 npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
 
 # Set the GitHub deploy key we will use to publish.
-set-up-ssh --key "$encrypted_8496d53a6fac_key" \
-           --iv "$encrypted_8496d53a6fac_iv" \
+set-up-ssh --key "$encrypted_17b59ce72ad7_key" \
+           --iv "$encrypted_17b59ce72ad7_iv" \
            --path-encrypted-key ".travis/github_deploy_key.enc"
 
 # Change from HTTPS to SSH.
 ./.travis/fix_github_https_repo.sh
 
+# Test the GitHub deploy key.
+git ls-remote
+
 # Log in to Docker Hub.
 docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
 
 # This is the list of Docker images to build.
-export DOCKER_IMAGES="composer-ui composer-playground composer-rest-server"
+export DOCKER_IMAGES="composer-playground composer-rest-server composer-cli"
 
 # Push the code to npm.
 if [ -z "${TRAVIS_TAG}" ]; then
@@ -79,23 +82,14 @@ if [ -z "${TRAVIS_TAG}" ]; then
     for i in ${DOCKER_IMAGES}; do
 
         # Build the image and tag it with the version and unstable.
-        docker build --build-arg VERSION=${VERSION} -t fabriccomposer/${i}:${VERSION} ${DIR}/packages/${i}/docker
-        docker tag fabriccomposer/${i}:${VERSION} fabriccomposer/${i}:unstable
+        docker build --build-arg VERSION=${VERSION} -t hyperledger/${i}:${VERSION} ${DIR}/packages/${i}/docker
+        docker tag hyperledger/${i}:${VERSION} hyperledger/${i}:unstable
 
         # Push both the version and unstable.
-        docker push fabriccomposer/${i}:${VERSION}
-        docker push fabriccomposer/${i}:unstable
+        docker push hyperledger/${i}:${VERSION}
+        docker push hyperledger/${i}:unstable
 
     done
-
-    # Push to public Bluemix.
-    pushd ${DIR}/packages/composer-ui
-    cf login -a https://api.ng.bluemix.net -u ${CF_USERNAME} -p ${CF_PASSWORD} -o ${CF_ORGANIZATION} -s ${CF_SPACE}
-    cf push fabric-composer-unstable -c "node cli.js" -i 2 -m 128M --no-start
-    cf set-env fabric-composer-unstable CLIENT_ID ${GH_UNSTABLE_OAUTH_CLIENT_ID}
-    cf set-env fabric-composer-unstable CLIENT_SECRET ${GH_UNSTABLE_OAUTH_CLIENT_SECRET}
-    cf start fabric-composer-unstable
-    popd
 
     # Push to public Bluemix.
     pushd ${DIR}/packages/composer-playground
@@ -104,6 +98,7 @@ if [ -z "${TRAVIS_TAG}" ]; then
     cf set-env composer-playground-unstable CLIENT_ID ${GH_NEXT_UNSTABLE_OAUTH_CLIENT_ID}
     cf set-env composer-playground-unstable CLIENT_SECRET ${GH_NEXT_UNSTABLE_OAUTH_CLIENT_SECRET}
     cf set-env composer-playground-unstable USABILLA_ID ${USABILLA_ID}
+    cf set-env composer-playground-unstable COMPOSER_CONFIG '{"webonly":true}'
     cf start composer-playground-unstable
     popd
 
@@ -120,23 +115,14 @@ else
     for i in ${DOCKER_IMAGES}; do
 
         # Build the image and tag it with the version and latest.
-        docker build --build-arg VERSION=${VERSION} -t fabriccomposer/${i}:${VERSION} ${DIR}/packages/${i}/docker
-        docker tag fabriccomposer/${i}:${VERSION} fabriccomposer/${i}:latest
+        docker build --build-arg VERSION=${VERSION} -t hyperledger/${i}:${VERSION} ${DIR}/packages/${i}/docker
+        docker tag hyperledger/${i}:${VERSION} hyperledger/${i}:latest
 
         # Push both the version and latest.
-        docker push fabriccomposer/${i}:${VERSION}
-        docker push fabriccomposer/${i}:latest
+        docker push hyperledger/${i}:${VERSION}
+        docker push hyperledger/${i}:latest
 
     done
-
-    # Push to public Bluemix.
-    pushd ${DIR}/packages/composer-ui
-    cf login -a https://api.ng.bluemix.net -u ${CF_USERNAME} -p ${CF_PASSWORD} -o ${CF_ORGANIZATION} -s ${CF_SPACE}
-    cf push fabric-composer -c "node cli.js" -i 2 -m 128M --no-start
-    cf set-env fabric-composer CLIENT_ID ${GH_OAUTH_CLIENT_ID}
-    cf set-env fabric-composer CLIENT_SECRET ${GH_OAUTH_CLIENT_SECRET}
-    cf start fabric-composer
-    popd
 
     # Push to public Bluemix.
     pushd ${DIR}/packages/composer-playground
@@ -145,6 +131,7 @@ else
     cf set-env composer-playground CLIENT_ID ${GH_NEXT_OAUTH_CLIENT_ID}
     cf set-env composer-playground CLIENT_SECRET ${GH_NEXT_OAUTH_CLIENT_SECRET}
     cf set-env composer-playground USABILLA_ID ${USABILLA_ID}
+    cf set-env composer-playground COMPOSER_CONFIG '{"webonly":true}'
     cf start composer-playground
     popd
 

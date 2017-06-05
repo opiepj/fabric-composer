@@ -20,6 +20,7 @@ const EnumDeclaration = require('./enumdeclaration');
 const ConceptDeclaration = require('./conceptdeclaration');
 const ParticipantDeclaration = require('./participantdeclaration');
 const TransactionDeclaration = require('./transactiondeclaration');
+const EventDeclaration = require('./eventdeclaration');
 const IllegalModelException = require('./illegalmodelexception');
 const ParseException = require('./parseexception');
 const ModelUtil = require('../modelutil');
@@ -42,7 +43,7 @@ class ModelFile {
      * ModelFile
      * @param {string} definitions - The DSL model as a string.
      * @param {string} fileName - The optional filename for this modelfile
-     * @throws {InvalidModelException}
+     * @throws {IllegalModelException}
      */
     constructor(modelManager, definitions, fileName) {
         this.modelManager = modelManager;
@@ -86,6 +87,9 @@ class ModelFile {
             }
             else if(thing.type === 'TransactionDeclaration') {
                 this.declarations.push( new TransactionDeclaration(this, thing) );
+            }
+            else if(thing.type === 'EventDeclaration') {
+                this.declarations.push( new EventDeclaration(this, thing) );
             }
             else if(thing.type === 'ParticipantDeclaration') {
                 this.declarations.push( new ParticipantDeclaration(this, thing) );
@@ -142,10 +146,35 @@ class ModelFile {
      * @private
      */
     validate() {
+
+        // Validate all of the imports to check that they reference
+        // namespaces or types that actually exist.
+        this.imports.forEach((importName) => {
+            const importNamespace = ModelUtil.getNamespace(importName);
+            const modelFile = this.getModelManager().getModelFile(importNamespace);
+            if (!modelFile) {
+                let formatter = Globalize.messageFormatter('modelmanager-gettype-noregisteredns');
+                throw new Error(formatter({
+                    type: importName
+                }));
+            }
+            if (ModelUtil.isWildcardName(importName)) {
+                // This is a wildcard import, org.acme.*
+                // Doesn't matter if 0 or 100 types in the namespace.
+                return;
+            }
+            const importShortName = ModelUtil.getShortName(importName);
+            if (!modelFile.isLocalType(importShortName)) {
+                throw new Error('No type ' + importShortName + ' in namespace ' + importNamespace);
+            }
+        });
+
+        // Validate all of the types in this model file.
         for(let n=0; n < this.declarations.length; n++) {
             let classDeclaration = this.declarations[n];
             classDeclaration.validate();
         }
+
     }
 
     /**
@@ -200,6 +229,12 @@ class ModelFile {
             let importName = this.imports[n];
             if( ModelUtil.getShortName(importName) === type ) {
                 return true;
+            } else if (ModelUtil.isWildcardName(importName)) {
+                const wildcardNamespace = ModelUtil.getNamespace(importName);
+                const modelFile = this.getModelManager().getModelFile(wildcardNamespace);
+                if (modelFile) {
+                    return modelFile.isLocalType(type);
+                }
             }
         }
         return false;
@@ -219,6 +254,12 @@ class ModelFile {
             let importName = this.imports[n];
             if( ModelUtil.getShortName(importName) === type ) {
                 return importName;
+            } else if (ModelUtil.isWildcardName(importName)) {
+                const wildcardNamespace = ModelUtil.getNamespace(importName);
+                const modelFile = this.getModelManager().getModelFile(wildcardNamespace);
+                if (modelFile && modelFile.isLocalType(type)) {
+                    return wildcardNamespace + '.' + type;
+                }
             }
         }
         let formatter = Globalize('en').messageFormatter('modelfile-resolveimport-failfindimp');
@@ -357,6 +398,20 @@ class ModelFile {
     }
 
     /**
+     * Get the EventDeclaration defined in this ModelFile or null
+     * @param {string} name the name of the type
+     * @return {EventDeclaration} the EventDeclaration with the given short name
+     */
+    getEventDeclaration(name) {
+        let classDeclaration = this.getLocalType(name);
+        if(classDeclaration instanceof EventDeclaration) {
+            return classDeclaration;
+        }
+
+        return null;
+    }
+
+    /**
      * Get the ParticipantDeclaration defined in this ModelFile or null
      * @param {string} name the name of the type
      * @return {ParticipantDeclaration} the ParticipantDeclaration with the given short name
@@ -410,6 +465,14 @@ class ModelFile {
      */
     getTransactionDeclarations() {
         return this.getDeclarations(TransactionDeclaration);
+    }
+
+    /**
+     * Get the EventDeclarations defined in this ModelFile
+     * @return {EventDeclaration[]} the EventDeclarations defined in the model file
+     */
+    getEventDeclarations() {
+        return this.getDeclarations(EventDeclaration);
     }
 
     /**

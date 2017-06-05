@@ -1,19 +1,19 @@
 ---
 layout: default
-title: Fabric Composer - Modeling Language
+title: Hyperledger Composer - Modeling Language
 category: reference
 sidebar: sidebars/reference.md
-excerpt: Guide to the Fabric Composer modeling language
+excerpt: Guide to the Hyperledger Composer modeling language
 ---
 
-# Fabric Composer Modeling Language
+# {{site.data.conrefs.composer_full}} Modeling Language
 
 ---
 
-Fabric Composer includes an Object-Oriented modeling language that is used to define
+{{site.data.conrefs.composer_full}} includes an Object-Oriented modeling language that is used to define
 the domain model for a business network definition.
 
-A Fabric Composer CTO file is composed of the following elements:
+A {{site.data.conrefs.composer_full}} CTO file is composed of the following elements:
 
 1. A single namespace. All resource declarations within the file are implicitly
 in this namespace.
@@ -34,14 +34,11 @@ o DEER_OTHER
 }
 ```
 
-### Declarations of Assets, Participants, Transactions
+### Declarations of Assets, Events, Participants, Transactions
 
-Assets, Participants and Transactions are class definitions. The
-concepts of Asset, Participant and Transaction may be considered to be different
-stereotypes of the class type.
+Assets, Participants and Transactions are class definitions. The concepts of Asset, Participant and Transaction may be considered to be different stereotypes of the class type.
 
-A class in Fabric Composer is referred to as a Resource Definition. Therefore an
-Asset (instance) has-an Asset Definition.
+A class in {{site.data.conrefs.composer_full}} is referred to as a Resource Definition. Therefore an Asset (instance) has-an Asset Definition.
 
 A resource definition has the following properties:
 
@@ -78,6 +75,15 @@ but that may be referenced from the resource. Relationships are unidirectional.
         o String address2
         o String county
         o String postcode
+    }
+    ```
+
+    ```
+    /**
+     * An abstract event type
+     */
+    event BasicEvent identified by eventId {
+    o String eventId
     }
     ```
 

@@ -22,20 +22,17 @@ The easiest way to publish a domain model for reuse by business network definiti
   },
   "repository": {
     "type": "git",
-    "url": "https://github.ibm.com/Blockchain-WW-Labs/DigitalProperty-Model.git"
+    "url": "https://github.com/DigitalProperty-Model.git"
   },"main": "index.js",
   "keywords": [
     "property",
     "land",
     "compliance"
   ],
-  "author": "IBM",
-  "license": "ISC",
+  "author": "Hyperledger Composer",
+  "license": "Apache-2.0",
   "devDependencies": {
     "license-check": "^1.1.5"
-  },
-  "publishConfig": {
-    "registry": "https://npm-registry.whitewater.ibm.com"
   },
   "license-check-config": {
     "src": [

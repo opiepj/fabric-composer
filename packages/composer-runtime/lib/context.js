@@ -68,6 +68,7 @@ class Context {
         this.accessController = null;
         this.sysregistries = null;
         this.sysidentities = null;
+        this.eventNumber = 0;
     }
 
     /**
@@ -220,6 +221,19 @@ class Context {
     }
 
     /**
+     * Get all of the services provided by the chaincode container.
+     * @return {Service[]} All of the services provided by the chaincode container.
+     */
+    getServices() {
+        return [
+            this.getDataService(),
+            this.getEventService(),
+            this.getIdentityService(),
+            this.getHTTPService()
+        ];
+    }
+
+    /**
      * Get the data service provided by the chaincode container.
      * @abstract
      * @return {DataService} The data service provided by the chaincode container.
@@ -234,6 +248,24 @@ class Context {
      * @return {IdentityService} The identity service provided by the chaincode container.
      */
     getIdentityService() {
+        throw new Error('abstract function called');
+    }
+
+    /**
+     * Get the http service provided by the chaincode container.
+     * @abstract
+     * @return {HTTPService} The http service provided by the chaincode container.
+     */
+    getHTTPService() {
+        throw new Error('abstract function called');
+    }
+
+    /**
+     * Get the event service provided by the chaincode container.
+     * @abstract
+     * @return {EventService} The event service provided by the chaincode container.
+     */
+    getEventService() {
         throw new Error('abstract function called');
     }
 
@@ -331,7 +363,7 @@ class Context {
      */
     getApi() {
         if (!this.api) {
-            this.api = new Api(this.getFactory(), this.getParticipant(), this.getRegistryManager());
+            this.api = new Api(this.getFactory(), this.getSerializer(), this.getParticipant(), this.getRegistryManager(), this.getHTTPService(), this.getEventService(), this);
         }
         return this.api;
     }
@@ -396,6 +428,7 @@ class Context {
         }
         this.transaction = transaction;
         this.transactionLogger = new TransactionLogger(this.transaction, this.getRegistryManager(), this.getSerializer());
+        this.getAccessController().setTransaction(transaction);
     }
 
     /**
@@ -460,6 +493,97 @@ class Context {
             throw new Error('must call initialize before calling this function');
         }
         return this.sysidentities;
+    }
+
+    /**
+     * Get the next event number
+     * @return {integer} the event number.
+     */
+    getEventNumber() {
+        return this.eventNumber;
+    }
+
+    /**
+     * Incrememnt the event number by 1
+     * @return {integer} the event number.
+     */
+    incrementEventNumber() {
+        return this.eventNumber++;
+    }
+
+    /**
+     * Called at the start of a transaction.
+     * @param {boolean} readOnly Is the transaction read-only?
+     * @return {Promise} A promise that will be resolved when complete, or rejected
+     * with an error.
+     */
+    transactionStart(readOnly) {
+        const services = this.getServices();
+        return services.reduce((promise, service) => {
+            return promise.then(() => {
+                return service.transactionStart(readOnly);
+            });
+        }, Promise.resolve());
+    }
+
+    /**
+     * Called when a transaction is preparing to commit.
+     * @abstract
+     * @return {Promise} A promise that will be resolved when complete, or rejected
+     * with an error.
+     */
+    transactionPrepare() {
+        const services = this.getServices();
+        return services.reduce((promise, service) => {
+            return promise.then(() => {
+                return service.transactionPrepare();
+            });
+        }, Promise.resolve());
+    }
+
+    /**
+     * Called when a transaction is rolling back.
+     * @abstract
+     * @return {Promise} A promise that will be resolved when complete, or rejected
+     * with an error.
+     */
+    transactionRollback() {
+        const services = this.getServices();
+        return services.reduce((promise, service) => {
+            return promise.then(() => {
+                return service.transactionRollback();
+            });
+        }, Promise.resolve());
+    }
+
+    /**
+     * Called when a transaction is committing.
+     * @abstract
+     * @return {Promise} A promise that will be resolved when complete, or rejected
+     * with an error.
+     */
+    transactionCommit() {
+        const services = this.getServices();
+        return services.reduce((promise, service) => {
+            return promise.then(() => {
+                return service.transactionCommit();
+            });
+        }, Promise.resolve());
+    }
+
+    /**
+     * Called at the end of a transaction.
+     * @abstract
+     * @return {Promise} A promise that will be resolved when complete, or rejected
+     * with an error.
+     */
+    transactionEnd() {
+        const services = this.getServices();
+        return services.reduce((promise, service) => {
+            return promise.then(() => {
+                return service.transactionEnd();
+            });
+        }, Promise.resolve());
     }
 
     /**

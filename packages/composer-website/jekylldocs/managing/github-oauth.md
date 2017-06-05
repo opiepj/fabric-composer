@@ -1,22 +1,22 @@
 ---
 layout: default
-title: Task - Enable OAuth with Github
+title: Task - Enable OAuth with GitHub
 category: tasks
 sidebar: sidebars/managing.md
-excerpt: How to enable OAuth with Github
+excerpt: How to enable OAuth with GitHub
 ---
 
-# Enable OAuth with Github
+# Enable Playground OAuth with GitHub
 
-To enable importing of samples without receiving an error when the rate limit is hit follow these steps.
+To enable importing of samples into a local instance of Playground without receiving an error when the rate limit is hit follow these steps.
 
-1. Go to [Github OAuth Applications](https://github.com/settings/developers).
+1. Go to [GitHub OAuth Applications](https://github.com/settings/developers).
 2. Register a new application.
     - The `Authorization callback URL` should be set to `localhost:<port>/github`.
-3. On the command line navigate to the `composer-connector-server` config directory.
+3. On the command line navigate to the `composer-playground-ui` config directory.
 
     ```
-    cd fabric-composer/packages/composer-connector-server/config
+    cd composer/packages/composer-playground-ui/config
     ```  
 4. Copy the file.
 
@@ -24,4 +24,4 @@ To enable importing of samples without receiving an error when the rate limit is
     cp .env.sample .env
     ```
 5. Open the `.env` file and set the `CLIENT_ID` and `CLIENT_SECRET` to the values that were given when you registered the application.
-6. (optional) The `port` which the `composer-connector-server` can also be set by setting the `PORT` value in the `.env` file.
+6. (optional) The `port` which the `composer-playground-ui` can also be set by setting the `PORT` value in the `.env` file.

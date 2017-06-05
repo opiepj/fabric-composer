@@ -15,7 +15,7 @@
 'use strict';
 
 /**
- * Fabric-Composer module. Fabric-Composer is a framework for creating
+ * Hyperledger-Composer module. Hyperledger-Composer is a framework for creating
  * blockchain backed digital networks and exchanging assets between participants
  * via processing transactions.
  * @module composer-common
@@ -63,6 +63,7 @@ module.exports.ConnectionProfileManager = require('./lib/connectionprofilemanage
 module.exports.ConnectionProfileStore = require('./lib/connectionprofilestore');
 module.exports.ConsoleLogger = require('./lib/log/consolelogger');
 module.exports.EnvConnectionProfileStore = require('./lib/envconnectionprofilestore');
+module.exports.EventDeclaration = require('./lib/introspect/eventdeclaration');
 module.exports.Factory = require('./lib/factory');
 module.exports.FileWallet = require('./lib/filewallet');
 module.exports.FileWriter = require('./lib/codegen/filewriter');
@@ -89,4 +90,5 @@ module.exports.TypescriptVisitor = require('./lib/codegen/fromcto/typescript/typ
 module.exports.Util = require('./lib/util');
 module.exports.Wallet = require('./lib/wallet');
 module.exports.CodeGen = require('./lib/codegen/codegen.js');
+module.exports.Writer = require('./lib/codegen/writer.js');
 module.exports.version = require('./package.json');

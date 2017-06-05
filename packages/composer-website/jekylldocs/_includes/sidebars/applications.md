@@ -1,13 +1,12 @@
 **[Introduction](../introduction/introduction.html)**
-**[Tutorials](../tutorials/tutorialindex.html)**
-**[Installing](../installing/prerequisites.html)**
-**[Defining Business Networks](../business-network/businessnetwork.html)**
-**[Writing Applications](../applications/genapp.html)**
-[Generating a starter application](../applications/genapp.html)
-[Writing a node.js application](../applications/getting-started-nodejs-app.html)
-[Generating a REST API](../applications/rest-api-server.html)
+**[Installing](../getting-started/getting-started.html)**
+**[Tutorials](../tutorials/tutorials.html)**
+**[Developing Business Networks](../business-network/businessnetwork.html)**
+**[Developing Applications](../applications/genapp.html)**
+[Writing a node.js application](../applications/genapp.html)
+[Subscribing to events](../applications/subscribing-to-events.html)
 **[Integrating Existing Systems](../integrating/integrating-index.html)**
-**[Managing and Operating](../managing/participant-add.html)**
-**[Determining Problems](../problems/diagnostics.html)**
+**[Managing and Operating](../managing/managingindex.html)**
+**[Diagnosing Problems](../problems/diagnostics.html)**
 **[Reference](../reference/MeetTheModules.html)**
 **[Support](../support/index.html)**

@@ -31,6 +31,7 @@ class Factory {
    + Resource newConcept(string,string,Object,boolean,string) throws ModelException
    + Relationship newRelationship(string,string,string) throws ModelException
    + Resource newTransaction(string,string,string,Object,string) 
+   + Resource newEvent(string,string,string,Object,string) 
    + Object toJSON() 
 }
 class FileWallet extends Wallet {
@@ -70,10 +71,12 @@ class Identifiable extends Typed {
    + String toString() 
    + boolean isRelationship() 
    + boolean isResource() 
+   + String toURI() 
 }
 class Relationship extends Identifiable {
    + String toString() 
    + boolean isRelationship() 
+   + Relationship fromURI(ModelManager,String,String,String) 
 }
 class Resource extends Identifiable {
    + String toString() 
@@ -85,6 +88,7 @@ class Typed {
    + string getNamespace() 
    + void setPropertyValue(string,string) 
    + void addArrayValue(string,string) 
+   + boolean instanceOf(String) 
 }
 class ValidatedConcept extends Concept {
    + void setPropertyValue(string,string) throws Error

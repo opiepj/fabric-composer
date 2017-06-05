@@ -1,16 +1,16 @@
 ---
 layout: default
-title: Fabric Composer - Access Contol Language
+title: Hyperledger Composer - Access Contol Language
 category: reference
 sidebar: sidebars/reference.md
-excerpt: Guide to the Fabric Composer access control language
+excerpt: Guide to the Hyperledger Composer access control language
 ---
 
-# Fabric Composer Access Control Language
+# {{site.data.conrefs.composer_full}} Access Control Language
 
 ---
 
-Fabric Composer includes an access control language (ACL) that provides declarative access control over the elements of the domain model. By defining ACL rules you can determine which users/roles are permitted to create, read, update or delete elements in a business network's domain model.
+{{site.data.conrefs.composer_full}} includes an access control language (ACL) that provides declarative access control over the elements of the domain model. By defining ACL rules you can determine which users/roles are permitted to create, read, update or delete elements in a business network's domain model.
 
 ### Evaluation of Access Control Rules
 
@@ -34,7 +34,7 @@ rule SimpleRule {
 }
 ````
 
-Conditional ACL rules introduce variable bindings for the participant and the resource being accessed, and a Boolean Javascript expression, which, when true, can either ALLOW or DENY access to the resource by the participant. 
+Conditional ACL rules introduce variable bindings for the participant and the resource being accessed, and a Boolean JavaScript expression, which, when true, can either ALLOW or DENY access to the resource by the participant.
 
 For example, the rule below states that any instance of the `org.acme.SampleParticipant` type can perform ALL operations on all instances of `org.acme.SampeAsset` IF the participant is the owner of the asset.
 
@@ -51,20 +51,19 @@ rule SampleConditionalRule {
 
 Multiple ACL rules may be defined that conceptually define a decision table. The actions of the decision tree define access control decisions (ALLOW or DENY). If the decision table fails to match then by default access is denied.
 
-**Resource** defines the things that the ACL rule applies to. This can be a property on a class, an entire class or all classes within a namespace. It can also be an instance of a class, or a property on an instance of a class.
+**Resource** defines the things that the ACL rule applies to. This can be a property on a class, an entire class or all classes within a namespace. It can also be an instance of a class.
 
 Resource Examples:
 - Namespace: org.acme
 - Class in namespace: org.acme.Car
 - Property on class: org.acme.Car.owner
 - Instance of a class: org.acme.Car#ABC123
-- Property on an instance of a class: org.acme.Car.owner#ABC123
 
 **Operation** identifies the action that the rule governs. It must be one of: CREATE, READ, UPDATE, DELETE or ALL.
 
 **Participant** defines the person or entity that has submitted a transaction for processing. If a Participant is specified they must exist in the Participant Registry. The PARTICIPANT may optionally be bound to a variable for use in a PREDICATE. The special value 'ANY' may be used to denote that participant type checking is not enforced for a rule.
 
-**Condition** is a Boolean Javascript expression over bound variables. Any Javascript expression that is legal with the an `if(...)` expression may be used here.
+**Condition** is a Boolean JavaScript expression over bound variables. Any JavaScript expression that is legal with the an `if(...)` expression may be used here.
 
 **Action** identifies the action of the rule. It must be one of: ALLOW, DENY.
 
@@ -94,7 +93,7 @@ rule R3 {
     description: "Driver can change the ownership of a car that they own"
     participant(d): "org.acme.Driver"
     operation: UPDATE
-    resource(o): "org.acme.Car.owner"
+    resource(o): "org.acme.Car"
     condition: (o == d)
     action: ALLOW
 }

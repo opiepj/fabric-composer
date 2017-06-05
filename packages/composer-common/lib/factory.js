@@ -29,6 +29,7 @@ const Concept = require('./model/concept');
 const ValidatedConcept = require('./model/validatedconcept');
 
 const TransactionDeclaration = require('./introspect/transactiondeclaration');
+const EventDeclaration = require('./introspect/eventdeclaration');
 
 const uuid = require('uuid');
 
@@ -46,7 +47,7 @@ class Factory {
      * Create the factory.
      * <p>
      * <strong>Note: Only to be called by framework code. Applications should
-     * retrieve instances from {@link Fabric-Composer}</strong>
+     * retrieve instances from {@link Hyperledger-Composer}</strong>
      * </p>
      * @param {ModelManager} modelManager - The ModelManager to use for this registry
      */
@@ -302,6 +303,39 @@ class Factory {
         transaction.timestamp = new Date();
 
         return transaction;
+    }
+
+    /**
+     * Create a new event object. The identifier of the event is
+     * set to a UUID.
+     * @param {string} ns - the namespace of the event.
+     * @param {string} type - the type of the event.
+     * @param {string} [id] - an optional identifier for the event; if you do not specify
+     * one then an identifier will be automatically generated.
+     * @param {Object} [options] - an optional set of options
+     * @param {string} [options.generate] - Pass one of: <dl>
+     * <dt>sample</dt><dd>return a resource instance with generated sample data.</dd>
+     * <dt>empty</dt><dd>return a resource instance with empty property values.</dd></dl>
+     * @return {Resource} A resource for the new event.
+     */
+    newEvent(ns, type, id, options) {
+        if (!ns) {
+            throw new Error('ns not specified');
+        } else if (!type) {
+            throw new Error('type not specified');
+        }
+        id = id || 'valid';
+        let event = this.newResource(ns, type, id, options);
+        const classDeclaration = event.getClassDeclaration();
+
+        if (!(classDeclaration instanceof EventDeclaration)) {
+            throw new Error(event.getClassDeclaration().getFullyQualifiedName() + ' is not an event');
+        }
+
+        // set the timestamp
+        event.timestamp = new Date();
+
+        return event;
     }
 
     /**

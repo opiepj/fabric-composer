@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Task - Deploy a Business Network
+title: Task - Deploy a Business Network Definition
 category: tasks
 sidebar: sidebars/businessnetworks.md
 excerpt: How to deploy a Business Network
@@ -10,44 +10,12 @@ excerpt: How to deploy a Business Network
 
 ---
 
-A business network is deployed using the `composer network deploy` command.
+A business network definition is deployed using the `composer network deploy` command. You can use the `composer archive` command to create an archive with the correct format.
 
-## Procedure
-1. Before deploying a business network, a [Business Network Definition](../introduction/businessnetworkdefinition.html) is needed as a `zip` file with the following structure:
+1. [Create a Connection Profile](../reference/connectionprofile.html)
 
-    ```
-    BusinessNetworkArchive.zip
-    ├── lib
-    │   └── mozart.cto.js
-    ├── models
-    │   └── mozart.cto
-    └── package.json
-    ```
+2. Enter the command on a single line. For example:
 
-    -	**lib** contains all of the transactions processor functions
-    -	**models** contains all of the model files written in the [CTO Language](../reference/cto_language.html).
-    -	**package.json** is required, and is used to create the [Business Network Definition](../introduction/businessnetworkdefinition.html)'s identifier
+        composer network deploy -p connectionProfileName -a <BusinessNetworkDefinition>.bna -i <Your EnrollmentID>
 
-    You can use the `composer archive` command to create an archive with the correct format.
-
-    **NOTE**: *Do not zip a a folder containing **lib**, **models**, and **package.json** to create an Business Network Archive, zip the contents themselves*
-
-2. Start [Hyperledger Fabric Peer and Membership Service](../installing/runtime-start.md)
-
-3. [Create a Connection Profile](../installing/createconnectionprofile.html) or do *not* use `-p` and allow Fabric Composer to create a `Default Connection Profile` for you.
-
-4. Enter the command on a single line. For example:
-
-    `composer network deploy -a <BusinessNetworkDefinition>.zip -i <Your EnrollmentID>`
-
-5. Enter your Enrollment Secret when prompted.
-
-    `prompt: What is the enrollment secret of the user?:`
-
-6. When you see
-
-    ```
-    Deploying business network definition. This may take a little time.
-    Command completed successfully.
-    ```
-    you have successfully deployed a business network!
+3. Enter your Enrollment Secret when prompted.

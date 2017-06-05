@@ -4,7 +4,7 @@
 set -ev
 set -o pipefail
 
-# Grab the Concerto directory.
+# Grab the parent (root) directory.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 ME=`basename "$0"`
 
@@ -27,12 +27,22 @@ fi
 
 # are we building the docs?
 if [ "${DOCS}" != "" ]; then
+
+    # Change into the docs directory.
+    cd "${DIR}/packages/composer-website"
+
+    # Build the installers.
+    ./build-installers.sh
+
+    # Build the documentation.
+    npm run doc
     if [ -n "${TRAVIS_TAG}" ]; then
-        export JEKYLL_ENV=production
+       export JEKYLL_ENV=production
+       npm run full:prod
+    else
+       npm run full:unstable
     fi
-	cd "${DIR}/packages/composer-website"
-	npm install
-	npm run full
+
 # Are we running system tests?
 elif [ "${SYSTEST}" != "" ]; then
 
@@ -44,10 +54,6 @@ else
 
     # Run the unit tests.
     npm test 2>&1 | tee
-
-    # Build the Composer UI.
-    cd "${DIR}/packages/composer-ui"
-    npm run build:prod
 
     # Build the Composer Playground.
     cd "${DIR}/packages/composer-playground"

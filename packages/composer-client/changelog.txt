@@ -1,5 +1,5 @@
 #
-# This is the changelog for IBM Concerto. It lists all significant changes to
+# This is the changelog for Hyperledger Composer. It lists all significant changes to
 # functionality and public API.
 #
 # The most recent entry in the changelog should be at the top of this file
@@ -11,6 +11,11 @@
 #
 # Note that the latest public API is documented using JSDocs and is available in api.txt.
 #
+
+Version 0.7.3 {bf1e2d4bd784b49a7303565e284c881f} 2017-05-18
+- Deprecated existsAssetRegistry
+- Added assetRegistryExists
+- Added participantRegistryExists
 
 Version 0.5.6 {b33a9697716c4de4fa2cda2ebac97bfb} 2017-03-29
 - Added additional connection options

@@ -53,7 +53,15 @@ describe('Serializer', () => {
         o String transactionId
         --> SampleAsset asset
         o String newValue
-        }`);
+        }
+
+        transaction SampleEvent identified by eventId {
+        o String eventId
+        --> SampleAsset asset
+        o String newValue
+        }
+
+        `);
         factory = new Factory(modelManager);
         serializer = new Serializer(factory, modelManager);
     });
@@ -104,7 +112,7 @@ describe('Serializer', () => {
             json.should.deep.equal({
                 $class: 'org.acme.sample.SampleAsset',
                 assetId: '1',
-                owner: 'alice@email.com',
+                owner: 'resource:org.acme.sample.SampleParticipant#alice@email.com',
                 value: 'the value'
             });
         });
@@ -163,7 +171,7 @@ describe('Serializer', () => {
             let json = {
                 $class: 'org.acme.sample.SampleAsset',
                 assetId: '1',
-                owner: 'alice@email.com',
+                owner: 'resource:org.acme.sample.SampleParticipant#alice@email.com',
                 value: 'the value'
             };
             let resource = serializer.fromJSON(json);
@@ -176,12 +184,26 @@ describe('Serializer', () => {
         it('should deserialize a valid transaction', () => {
             let json = {
                 $class: 'org.acme.sample.SampleTransaction',
-                asset: '1',
+                asset: 'resource:org.acme.sample.SampleAsset#1',
                 newValue: 'the value'
             };
             let resource = serializer.fromJSON(json);
             resource.should.be.an.instanceOf(Resource);
             resource.transactionId.should.exist;
+            resource.timestamp.should.exist;
+            resource.asset.should.be.an.instanceOf(Relationship);
+            resource.newValue.should.equal('the value');
+        });
+
+        it('should deserialize a valid event', () => {
+            let json = {
+                $class: 'org.acme.sample.SampleEvent',
+                asset: 'resource:org.acme.sample.SampleAsset#1',
+                newValue: 'the value'
+            };
+            let resource = serializer.fromJSON(json);
+            resource.should.be.an.instanceOf(Resource);
+            resource.eventId.should.exist;
             resource.timestamp.should.exist;
             resource.asset.should.be.an.instanceOf(Relationship);
             resource.newValue.should.equal('the value');

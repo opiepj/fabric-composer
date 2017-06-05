@@ -1,21 +1,23 @@
 ---
 layout: default
-title: Fabric Composer Command Line
+title: Hyperledger Composer Command Line
 category: reference
 sidebar: sidebars/reference.md
-excerpt: Fabric Composer Command Line
+excerpt: Hyperledger Composer Command Line
 ---
 
-# Fabric Composer Command Line
+# {{site.data.conrefs.composer_full}} Command Line
 
 ---
 
-The Fabric Composer command line application, `composer`, can be used to perform multiple
+The {{site.data.conrefs.composer_full}} command line application, `composer`, can be used to perform multiple
 administrative, operational, and development tasks.
 
-The Fabric Composer command line application can be installed using npm:
+The {{site.data.conrefs.composer_full}} command line application can be installed using npm:
 
 `npm install -g composer-cli`
+
+*Please note: When using Ubuntu this command will fail when running in a root user shell.*
 
 ## Business Network Archives
 
@@ -35,7 +37,7 @@ Deploy a Business Network Definition: [composer network deploy](./composer.netwo
 
 `composer network undeploy`
 
-Undeploy a Business Network Definition: [composer network undeploy](./composer.network.undeploy.md)
+Permanently disable a business network definition: [composer network undeploy](./composer.network.undeploy.md)
 
 `composer network list`
 

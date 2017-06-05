@@ -48,7 +48,7 @@ const bfs_fs = BrowserFS.BFSRequire('fs');
                 instrumentId: [
                     'AliceCorp'
                 ],
-                issuer: '1',
+                issuer: 'resource:org.acme.bond.Issuer#1',
                 maturity: '2018-02-27T21:03:52.000Z',
                 parValue: 1000,
                 paymentFrequency: {
@@ -70,7 +70,7 @@ const bfs_fs = BrowserFS.BFSRequire('fs');
                 instrumentId: [
                     'BobCorp'
                 ],
-                issuer: '1',
+                issuer: 'resource:org.acme.bond.Issuer#1',
                 maturity: '2018-02-27T21:03:52.000Z',
                 parValue: 1000,
                 paymentFrequency: {
@@ -92,7 +92,7 @@ const bfs_fs = BrowserFS.BFSRequire('fs');
                 instrumentId: [
                     'CharlieCorp'
                 ],
-                issuer: '1',
+                issuer: 'resource:org.acme.bond.Issuer#1',
                 maturity: '2018-02-27T21:03:52.000Z',
                 parValue: 1000,
                 paymentFrequency: {
@@ -114,7 +114,7 @@ const bfs_fs = BrowserFS.BFSRequire('fs');
                 instrumentId: [
                     'DogeCorp'
                 ],
-                issuer: '1',
+                issuer: 'resource:org.acme.bond.Issuer#1',
                 maturity: '2018-02-27T21:03:52.000Z',
                 parValue: 1000,
                 paymentFrequency: {
@@ -198,6 +198,8 @@ const bfs_fs = BrowserFS.BFSRequire('fs');
                     })
                     .then((res) => {
                         res.should.have.status(200);
+                        res.should.be.json;
+                        res.body.transactionId.should.be.a('string');
                         return assetRegistry.get('ISIN_1');
                     })
                     .then((asset) => {
@@ -230,6 +232,8 @@ const bfs_fs = BrowserFS.BFSRequire('fs');
                     })
                     .then((res) => {
                         res.should.have.status(200);
+                        res.should.be.json;
+                        res.body.transactionId.should.be.a('string');
                         return assetRegistry.get('ISIN_2');
                     })
                     .then((asset) => {
@@ -250,6 +254,8 @@ const bfs_fs = BrowserFS.BFSRequire('fs');
                     })
                     .then((res) => {
                         res.should.have.status(200);
+                        res.should.be.json;
+                        res.body.transactionId.should.be.a('string');
                         return assetRegistry.get('ISIN_3');
                     })
                     .then((asset) => {
@@ -270,6 +276,9 @@ const bfs_fs = BrowserFS.BFSRequire('fs');
                     }])
                     .then((res) => {
                         res.should.have.status(200);
+                        res.should.be.json;
+                        res.body[0].transactionId.should.be.a('string');
+                        res.body[1].transactionId.should.be.a('string');
                         return assetRegistry.get('ISIN_1');
                     })
                     .then((asset) => {

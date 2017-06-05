@@ -280,7 +280,7 @@ DecimalLiteral
   / DecimalIntegerLiteral ExponentPart? {
       return { type: "Literal", value: parseFloat(text()) };
     }
-    
+
 SignedRealLiteral= [+-]? DecimalIntegerLiteral "." DecimalDigit* ExponentPart? {
       return { type: "Literal", value: parseFloat(text()) };
     }
@@ -1268,6 +1268,7 @@ AbstractToken     = "abstract"    !IdentifierPart
 ConceptToken      = "concept"     !IdentifierPart
 AssetToken        = "asset"       !IdentifierPart
 TransactionToken  = "transaction" !IdentifierPart
+EventToken        = "event"       !IdentifierPart
 ParticipantToken  = "participant" !IdentifierPart
 
 /* Primitive Types */
@@ -1297,7 +1298,7 @@ BooleanType       = "Boolean"     !IdentifierPart {
 
 NumberType
    = IntegerType / DoubleType / LongType
-   
+
 RealNumberType
    = DoubleType
 
@@ -1380,6 +1381,21 @@ TransactionDeclaration
       };
     }
 
+EventDeclaration
+  = abstract:AbstractToken? __ EventToken __ id:Identifier __ idField:IdentifiedByField? __ classExtension: ClassExtension? __
+    "{" __ body:ClassDeclarationBody __ "}"
+    {
+      return {
+        type:   "EventDeclaration",
+        id:     id,
+        classExtension: classExtension,
+        body:   body,
+        idField: idField,
+        abstract: abstract,
+        location: location()
+      };
+    }
+
 ConceptDeclaration
       = abstract:AbstractToken? __ ConceptToken __ id:Identifier __ classExtension: ClassExtension? __
         "{" __ body:ClassDeclarationBody __ "}"
@@ -1410,7 +1426,7 @@ BooleanDefault
    = "default" __ "=" __ def:$BooleanLiteral {
       return def;
     }
-    
+
 IntegerDefault
    = "default" __ "=" __ def:$SignedInteger {
      return def;
@@ -1438,7 +1454,7 @@ ClassDeclarationBody
         location: location()
       };
     }
-   
+
 ObjectFieldDeclaration
     = "o" __ propertyType:ObjectType __ array:"[]"? __ id:Identifier __ d:StringDefault? __ optional:Optional? __ {
     	return {
@@ -1504,7 +1520,7 @@ RealDomainValidator
       upper: upper
     }
   }
-  
+
 IntegerDomainValidator
    = "range" __ "=" __ "[" __ lower:SignedInteger? __ "," __ upper:SignedInteger? __ "]" {
    	return {
@@ -1526,7 +1542,7 @@ RealFieldDeclaration
             location: location()
     	}
     }
-    
+
 IntegerFieldDeclaration
     = "o" __ propertyType:WholeNumberType __ array:"[]"? __ id:Identifier __  d:IntegerDefault? __ range:IntegerDomainValidator? __ optional:Optional? __ {
     	return {
@@ -1594,7 +1610,7 @@ Namespace
   }
 
 Import
-    = ImportToken __ ns: QualifiedName __ {
+    = ImportToken __ ns:$(QualifiedName '.*'?) __ {
     	return ns;
   }
 
@@ -1621,6 +1637,7 @@ SourceElements
 SourceElement
   = AssetDeclaration
   / TransactionDeclaration
+  / EventDeclaration
   / ParticipantDeclaration
   / EnumDeclaration
   / ConceptDeclaration
