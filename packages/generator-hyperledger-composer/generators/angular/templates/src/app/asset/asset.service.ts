@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { DataService } from '../data.service';
 import { Observable } from 'rxjs/Observable';
 import { <%= assetName %> } from '../<%= namespace %>';
-import 'rxjs/Rx';
 
 // Can be injected into a constructor
 @Injectable()
@@ -14,10 +13,8 @@ export class <%= assetName %>Service {
 		private NAMESPACE: string = '<%= assetName %>';
 	<% } %>
 
-
-
     constructor(private dataService: DataService<<%= assetName %>>) {
-    };
+    }
 
     public getAll(): Observable<<%= assetName %>[]> {
         return this.dataService.getAll(this.NAMESPACE);
